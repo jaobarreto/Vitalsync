@@ -1,24 +1,21 @@
-/* eslint-disable prettier/prettier */
-import { IsEmail, IsNotEmpty, IsNumber, IsObject, IsString, MinLength } from 'class-validator';
+// eslint-disable-next-line prettier/prettier
+import { IsString, IsEmail, IsInt, IsNumber, IsObject, IsOptional } from 'class-validator';
+import { MedicalHistoryDto } from './medical-history.dto';
+import { HealthReportDto } from './health-report.dto';
 
 export class CreateUserDto {
-  @IsNotEmpty()
   @IsString()
   name: string;
 
-  @IsNotEmpty()
   @IsEmail()
   email: string;
 
-  @IsNotEmpty()
-  @MinLength(8, { message: 'A senha deve ter pelo menos 8 caracteres' })
   @IsString()
   password: string;
 
-  @IsNumber()
+  @IsInt()
   age: number;
 
-  @IsNotEmpty()
   @IsString()
   gender: string;
 
@@ -28,9 +25,11 @@ export class CreateUserDto {
   @IsNumber()
   height: number;
 
+  @IsOptional()
   @IsObject()
-  medicalHistory: object;
+  medicalHistory?: MedicalHistoryDto;
 
+  @IsOptional()
   @IsObject()
-  healthReport: object;
+  healthReport?: HealthReportDto;
 }

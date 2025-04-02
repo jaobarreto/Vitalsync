@@ -1,3 +1,4 @@
+/* eslint-disable prefer-const */
 import { Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { PrismaService } from '../prisma/prisma.service';
@@ -61,21 +62,26 @@ export class UsersService {
       healthReport,
     } = updateUserDto;
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    let dataToUpdate: any = {
+      name,
+      email,
+      age,
+      gender,
+      weight,
+      height,
+      medicalHistory,
+      healthReport,
+    };
+
+    // Se a senha for fornecida, faça o hash
+    if (password) {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      dataToUpdate.password = hashedPassword;
+    }
 
     return this.prisma.user.update({
       where: { id },
-      data: {
-        name,
-        email,
-        password: hashedPassword,
-        age,
-        gender,
-        weight,
-        height,
-        medicalHistory,
-        healthReport,
-      },
+      data: dataToUpdate,
     });
   }
 
