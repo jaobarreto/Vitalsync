@@ -8,34 +8,39 @@ datasource db {
 }
 
 model User {
-  id            String @id @default(auto()) @map("_id") @db.ObjectId
-  name          String
-  email         String @unique
-  password     String 
-  age           Int
-  gender        String
-  weight        Float
-  height        Float
-  medicalHistory MedicalHistory?
-  healthReport   HealthReport?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id              String          @id @default(auto()) @map("_id") @db.ObjectId
+  name            String
+  email           String          @unique
+  password        String
+  birthDate       DateTime
+  gender          String
+  weight          Float
+  height          Float
+  medicalHistory  MedicalHistory?
+  healthReport    HealthReport?
+  caregivers      Caregiver[]
+  measurements    Measurement[]
+  alerts          Alert[]
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
 }
 
 model Measurement {
-  id                 String @id @default(auto()) @map("_id") @db.ObjectId
-  userId             String
-  heartRate          Int
-  bloodOxygenLevel   Int
-  hrv                Int
-  timestamp          DateTime
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  user              User     @relation(fields: [userId], references: [id])
+  userId            String   @db.ObjectId
+  heartRate         Int
+  bloodOxygenLevel  Int
+  hrv               Int
+  timestamp         DateTime
+  alerts            Alert[]
 }
 
 type MedicalHistory {
-  hypertension   Boolean
-  diabetes       Boolean
-  highCholesterol Boolean
-  previousStroke Boolean
+  hypertension      Boolean @default(false)
+  diabetesType      String?  // Ex: "Tipo 1", "Tipo 2", "Gestacional", etc
+  highCholesterol   Boolean @default(false)
+  previousStroke    Boolean @default(false)
 }
 
 type HealthReport {
@@ -44,21 +49,45 @@ type HealthReport {
 }
 
 type Symptoms {
-  headache             String
-  dizzinessVertigo     String
-  fatigueWeakness      String
-  visualChanges        String
-  numbnessTingling     String
-  speechDifficulties   String
-  additionalSymptoms   String
+  headache             String?
+  dizzinessVertigo     String?
+  fatigueWeakness      String?
+  visualChanges        String?
+  numbnessTingling     String?
+  speechDifficulties   String?
+  additionalSymptoms   String?
 }
 
 type Lifestyle {
-  dietType             String
-  alcoholConsumption   String
-  stressLevel          String
-  weeklyWorkHours      String
-  dailyScreenTime      String
-  dailyOutdoorTime     String
-  additionalInfo       String
+  dietType             String?
+  alcoholConsumption   String?
+  stressLevel          String?
+  weeklyWorkHours      String?
+  dailyScreenTime      String?
+  dailyOutdoorTime     String?
+  additionalInfo       String?
+}
+
+type Caregiver {
+  name         String
+  relationship String  // Ex: "Pai", "Cuidador", "Filho", etc
+  phone        String
+  email        String?
+}
+
+model Alert {
+  id             String       @id @default(auto()) @map("_id") @db.ObjectId
+  user           User         @relation(fields: [userId], references: [id])
+  userId         String       @db.ObjectId
+  measurement    Measurement? @relation(fields: [measurementId], references: [id])
+  measurementId  String?      @db.ObjectId
+  type           AlertType
+  message        String
+  resolved       Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+}
+
+enum AlertType {
+  PRECAUTION
+  CRITICAL
 }
