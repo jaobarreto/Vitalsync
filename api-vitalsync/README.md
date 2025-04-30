@@ -116,7 +116,7 @@ Acesse a documentação interativa da API em:
 
 ```mermaid
 graph LR
-    A[Sensor/ESP32] -->|HTTP POST| B[API NestJS]
+    A[MAX30102] -->|HTTP POST| B[API NestJS]
     B --> C[MongoDB]
     C --> D[Agrupamento Diário]
     D --> E[Sistema de Alertas]
