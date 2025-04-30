@@ -1,5 +1,5 @@
 // eslint-disable-next-line prettier/prettier
-import { IsString, IsEmail, IsInt, IsNumber, IsObject, IsOptional } from 'class-validator';
+import { IsString, IsEmail, IsNumber, IsObject, IsOptional, IsDate } from 'class-validator';
 import { MedicalHistoryDto } from './medical-history.dto';
 import { HealthReportDto } from './health-report.dto';
 
@@ -13,8 +13,8 @@ export class CreateUserDto {
   @IsString()
   password: string;
 
-  @IsInt()
-  age: number;
+  @IsDate()
+  birthDate: Date;
 
   @IsString()
   gender: string;

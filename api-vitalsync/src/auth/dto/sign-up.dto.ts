@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, MinLength, IsInt, IsString } from 'class-validator';
+import { IsEmail, IsNotEmpty, MinLength, IsInt, IsString, IsDate } from 'class-validator';
 
 export class SignUpDto {
   @IsNotEmpty({ message: 'Nome é obrigatório' })
@@ -12,8 +12,8 @@ export class SignUpDto {
   @MinLength(6, { message: 'A senha deve ter pelo menos 6 caracteres' })
   password: string;
 
-  @IsInt({ message: 'Idade deve ser um número' })
-  age: number;
+  @IsDate({ message: 'Informe uma data de nascimento válida' })
+  birthDate: Date;
 
   @IsString({ message: 'Gênero deve ser uma string' })
   gender: string;
