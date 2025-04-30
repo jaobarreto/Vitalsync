@@ -13,10 +13,10 @@ async function bootstrap() {
   // Configuração global de validação
   app.useGlobalPipes(
     new ValidationPipe({
-      transform: true,  // Converte automaticamente os tipos
-      whitelist: true,  // Remove propriedades não declaradas nos DTOs
-      forbidNonWhitelisted: true,  // Rejeita requisições com propriedades não declaradas
-    })
+      transform: true, // Converte automaticamente os tipos
+      whitelist: true, // Remove propriedades não declaradas nos DTOs
+      forbidNonWhitelisted: true, // Rejeita requisições com propriedades não declaradas
+    }),
   );
 
   // Configuração do Swagger
@@ -25,13 +25,13 @@ async function bootstrap() {
     .setDescription('API para monitoramento de saúde')
     .setVersion('1.0')
     .addBearerAuth(
-      { 
+      {
         type: 'http',
         scheme: 'bearer',
         bearerFormat: 'JWT',
-        description: 'Insira o token JWT'
+        description: 'Insira o token JWT',
       },
-      'JWT-auth' // Este nome deve ser usado com @ApiBearerAuth('JWT-auth') nos controllers
+      'JWT-auth', // Este nome deve ser usado com @ApiBearerAuth('JWT-auth') nos controllers
     )
     .build();
 

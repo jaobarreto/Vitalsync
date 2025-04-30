@@ -1,13 +1,13 @@
 import { Controller, Post, Get, Param, Body, Delete } from '@nestjs/common';
 import { MeasurementService } from './measurement.service';
 import { MeasurementDto } from './dto/measurement.dto';
-import { 
-  ApiTags, 
-  ApiOperation, 
-  ApiResponse, 
-  ApiBody, 
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBody,
   ApiParam,
-  ApiBearerAuth 
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 import { AuthGuard } from '../auth/auth.guard';
 import { UseGuards } from '@nestjs/common';
@@ -21,13 +21,13 @@ export class MeasurementController {
 
   @Post()
   @ApiOperation({ summary: 'Criar nova medição' })
-  @ApiResponse({ 
-    status: 201, 
-    description: 'Medição criada com sucesso' 
+  @ApiResponse({
+    status: 201,
+    description: 'Medição criada com sucesso',
   })
-  @ApiResponse({ 
-    status: 400, 
-    description: 'Dados inválidos' 
+  @ApiResponse({
+    status: 400,
+    description: 'Dados inválidos',
   })
   @ApiBody({ type: MeasurementDto })
   async create(@Body() data: MeasurementDto) {
@@ -36,9 +36,9 @@ export class MeasurementController {
 
   @Get()
   @ApiOperation({ summary: 'Listar todas as medições' })
-  @ApiResponse({ 
-    status: 200, 
-    description: 'Lista de medições retornada' 
+  @ApiResponse({
+    status: 200,
+    description: 'Lista de medições retornada',
   })
   async findAll() {
     return this.measurementService.findAll();
@@ -47,13 +47,13 @@ export class MeasurementController {
   @Get(':id')
   @ApiOperation({ summary: 'Obter medição específica' })
   @ApiParam({ name: 'id', description: 'ID da medição' })
-  @ApiResponse({ 
-    status: 200, 
-    description: 'Medição encontrada' 
+  @ApiResponse({
+    status: 200,
+    description: 'Medição encontrada',
   })
-  @ApiResponse({ 
-    status: 404, 
-    description: 'Medição não encontrada' 
+  @ApiResponse({
+    status: 404,
+    description: 'Medição não encontrada',
   })
   async findOne(@Param('id') id: string) {
     return this.measurementService.findOne(id);
@@ -62,13 +62,13 @@ export class MeasurementController {
   @Delete(':id')
   @ApiOperation({ summary: 'Remover medição' })
   @ApiParam({ name: 'id', description: 'ID da medição' })
-  @ApiResponse({ 
-    status: 200, 
-    description: 'Medição removida' 
+  @ApiResponse({
+    status: 200,
+    description: 'Medição removida',
   })
-  @ApiResponse({ 
-    status: 404, 
-    description: 'Medição não encontrada' 
+  @ApiResponse({
+    status: 404,
+    description: 'Medição não encontrada',
   })
   async remove(@Param('id') id: string) {
     return this.measurementService.delete(id);
@@ -76,9 +76,9 @@ export class MeasurementController {
 
   @Post('mock')
   @ApiOperation({ summary: 'Gerar dados mockados' })
-  @ApiResponse({ 
-    status: 201, 
-    description: 'Dados mockados gerados' 
+  @ApiResponse({
+    status: 201,
+    description: 'Dados mockados gerados',
   })
   async generateMock() {
     return this.measurementService.generateMockData();
