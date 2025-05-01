@@ -4,9 +4,10 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { MeasurementModule } from './measurement/measurement.module';
 import { APP_PIPE } from '@nestjs/core';
+import { CaregiversModule } from './caregivers/caregivers.module';
 
 @Module({
-  imports: [PrismaModule, UsersModule, AuthModule, MeasurementModule],
+  imports: [PrismaModule, UsersModule, AuthModule, MeasurementModule, CaregiversModule],
   controllers: [],
   providers: [
     {

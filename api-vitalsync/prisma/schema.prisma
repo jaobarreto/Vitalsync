@@ -51,6 +51,20 @@ model Measurement {
   @@index([eventType], name: "event_type_index")
 }
 
+model Caregiver {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  user         User     @relation(fields: [userId], references: [id])
+  userId       String   @db.ObjectId
+  name         String
+  relationship String
+  phone        String
+  email        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([userId, name])
+}
+
 model DailySummary {
   id           String     @id @default(auto()) @map("_id") @db.ObjectId
   user         User       @relation(fields: [userId], references: [id])
@@ -110,13 +124,6 @@ type Lifestyle {
   dailyScreenTime      String?
   dailyOutdoorTime     String?
   additionalInfo       String?
-}
-
-type Caregiver {
-  name         String
-  relationship String  // Ex: "Pai", "Cuidador", "Filho", etc
-  phone        String
-  email        String?
 }
 
 enum AlertType {
