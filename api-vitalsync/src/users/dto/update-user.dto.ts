@@ -6,7 +6,7 @@ export class UpdateUserDto extends PartialType(CreateUserDto) {
   @ApiProperty({
     required: false,
     example: 'novaSenha123',
-    description: 'Nova senha (opcional)'
+    description: 'Nova senha (opcional)',
   })
   @IsOptional()
   @IsString()

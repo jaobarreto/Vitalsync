@@ -5,7 +5,7 @@ export class MedicalHistoryDto {
   @ApiProperty({
     example: true,
     description: 'Histórico de hipertensão',
-    default: false
+    default: false,
   })
   @IsBoolean()
   hypertension: boolean;
@@ -14,7 +14,7 @@ export class MedicalHistoryDto {
     example: 'Tipo 2',
     description: 'Tipo de diabetes se houver',
     enum: ['Tipo 1', 'Tipo 2', 'Gestacional'],
-    required: false
+    required: false,
   })
   @IsOptional()
   @IsString()
@@ -23,7 +23,7 @@ export class MedicalHistoryDto {
   @ApiProperty({
     example: true,
     description: 'Colesterol alto',
-    default: false
+    default: false,
   })
   @IsBoolean()
   highCholesterol: boolean;
@@ -31,7 +31,7 @@ export class MedicalHistoryDto {
   @ApiProperty({
     example: false,
     description: 'AVC prévio',
-    default: false
+    default: false,
   })
   @IsBoolean()
   previousStroke: boolean;

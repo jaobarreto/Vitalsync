@@ -1,5 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsEmail, IsNumber, IsObject, IsOptional, IsDate } from 'class-validator';
+import {
+  IsString,
+  IsEmail,
+  IsNumber,
+  IsObject,
+  IsOptional,
+  IsISO8601,
+} from 'class-validator';
 import { MedicalHistoryDto } from './medical-history.dto';
 import { HealthReportDto } from './health-report.dto';
 
@@ -12,20 +19,23 @@ export class CreateUserDto {
   @IsEmail()
   email: string;
 
-  @ApiProperty({ example: 'senha123', description: 'Senha mínima 6 caracteres' })
+  @ApiProperty({
+    example: 'senha123',
+    description: 'Senha mínima 6 caracteres',
+  })
   @IsString()
   password: string;
 
   @ApiProperty({
     example: '1985-07-20T00:00:00.000Z',
-    description: 'Data de nascimento em ISO8601'
+    description: 'Data de nascimento em ISO8601',
   })
-  @IsDate()
-  birthDate: Date;
+  @IsISO8601()
+  birthDate: string;
 
-  @ApiProperty({ 
-    example: 'Outro', 
-    enum: ['Masculino', 'Feminino', 'Outro'] 
+  @ApiProperty({
+    example: 'Outro',
+    enum: ['Masculino', 'Feminino', 'Outro'],
   })
   @IsString()
   gender: string;

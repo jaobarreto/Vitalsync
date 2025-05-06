@@ -5,7 +5,7 @@ export class SymptomsDto {
   @ApiProperty({
     example: 'Ocasional',
     description: 'Frequência de dores de cabeça',
-    required: false
+    required: false,
   })
   @IsOptional()
   @IsString()

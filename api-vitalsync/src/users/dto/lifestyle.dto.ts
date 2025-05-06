@@ -5,7 +5,7 @@ export class LifestyleDto {
   @ApiProperty({
     example: 'Mediterrânea',
     description: 'Tipo de dieta',
-    required: false
+    required: false,
   })
   @IsOptional()
   @IsString()

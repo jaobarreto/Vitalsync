@@ -16,6 +16,9 @@ async function bootstrap() {
       transform: true, // Converte automaticamente os tipos
       whitelist: true, // Remove propriedades não declaradas nos DTOs
       forbidNonWhitelisted: true, // Rejeita requisições com propriedades não declaradas
+      transformOptions: {
+        enableImplicitConversion: true, // Tenta converter tipos implicitamente
+      },
     }),
   );
 
