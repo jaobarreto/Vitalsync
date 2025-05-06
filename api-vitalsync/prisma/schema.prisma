@@ -8,47 +8,52 @@ datasource db {
 }
 
 model User {
-  id              String            @id @default(auto()) @map("_id") @db.ObjectId
-  name            String
-  email           String            @unique
-  password        String
-  birthDate       DateTime
-  gender          String
-  weight          Float
-  height          Float
-  medicalHistory  MedicalHistory?
-  healthReport    HealthReport?
-  caregivers      Caregiver[]
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
+  id             String          @id @default(auto()) @map("_id") @db.ObjectId
+  name           String
+  email          String          @unique
+  password       String
+  birthDate      DateTime
+  gender         String
+  weight         Float
+  height         Float
+  medicalHistory MedicalHistory?
+  healthReport   HealthReport?
+  caregivers     Caregiver[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
 
-  // Relacionamentos
-  measurements    Measurement[]
-  dailySummaries  DailySummary[]
-  alerts          Alert[]
+  measurements   Measurement[]
+  dailySummaries DailySummary[]
+  alerts         Alert[]
+
+  @@map("users")
 }
 
 model Measurement {
-  id                String     @id @default(auto()) @map("_id") @db.ObjectId
-  user              User       @relation(fields: [userId], references: [id])
-  userId            String     @db.ObjectId
-  heartRate         Int
-  bloodOxygenLevel  Int
-  hrv               Int
-  timestamp         DateTime
-  eventType         String?    @default("routine") // "emergency" | "manual" | "automatic"
-  notes             String?
-  duration          Int?       // Em minutos
-  createdAt         DateTime   @default(now())
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  user   User   @relation(fields: [userId], references: [id])
+  userId String @db.ObjectId
 
-  // Relacionamento reverso (1 measurement pode ter vários dailySummaries)
-  dailySummaryId    String?    @db.ObjectId
-  dailySummary      DailySummary? @relation(fields: [dailySummaryId], references: [id])
+  rawIR      Int[]
+  rawRed     Int[]
+  sampleRate Int
 
-  alerts            Alert[]
+  heartRate      Float?
+  heartRateVar   Float?
+  spo2           Float?
+  perfusionIndex Float?
+  bpSystolic     Int?
+  atrialFibRisk  Float?
 
-  @@index([userId, timestamp], name: "calendar_query_index")
-  @@index([eventType], name: "event_type_index")
+  measurementType String   @default("continuous")
+  timestamp       DateTime @default(now())
+
+  dailySummary   DailySummary? @relation("DailyMeasurements", fields: [dailySummaryId], references: [id])
+  dailySummaryId String?       @db.ObjectId
+  alerts         Alert[]       @relation("MeasurementAlerts")
+
+  @@index([userId, timestamp], name: "stroke_risk_index")
+  @@map("measurements")
 }
 
 model Caregiver {
@@ -63,67 +68,71 @@ model Caregiver {
   updatedAt    DateTime @updatedAt
 
   @@index([userId, name])
+  @@map("caregivers")
 }
 
 model DailySummary {
-  id           String     @id @default(auto()) @map("_id") @db.ObjectId
-  user         User       @relation(fields: [userId], references: [id])
-  userId       String     @db.ObjectId
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  user         User     @relation(fields: [userId], references: [id])
+  userId       String   @db.ObjectId
   date         DateTime
   avgHeartRate Float
   minOxygen    Int
   maxHRV       Int
-  alertCount   Int        @default(0)
+  alertCount   Int      @default(0)
 
-  measurements Measurement[]
+  measurements Measurement[] @relation("DailyMeasurements")
 
   @@index([userId, date], name: "daily_summary_index")
+  @@map("daily_summaries")
 }
 
 model Alert {
-  id             String       @id @default(auto()) @map("_id") @db.ObjectId
-  user           User         @relation(fields: [userId], references: [id])
-  userId         String       @db.ObjectId
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  user   User   @relation(fields: [userId], references: [id])
+  userId String @db.ObjectId
 
-  measurementId  String?      @db.ObjectId
-  measurement    Measurement? @relation(fields: [measurementId], references: [id])
+  measurement   Measurement? @relation("MeasurementAlerts", fields: [measurementId], references: [id])
+  measurementId String?      @db.ObjectId
 
-  type           AlertType
-  message        String
-  resolved       Boolean      @default(false)
-  createdAt      DateTime     @default(now())
+  type      AlertType
+  message   String
+  resolved  Boolean   @default(false)
+  createdAt DateTime  @default(now())
+
+  @@map("alerts")
 }
 
 type MedicalHistory {
-  hypertension      Boolean @default(false)
-  diabetesType      String?  // Ex: "Tipo 1", "Tipo 2", "Gestacional", etc
-  highCholesterol   Boolean @default(false)
-  previousStroke    Boolean @default(false)
+  hypertension    Boolean @default(false)
+  diabetesType    String?
+  highCholesterol Boolean @default(false)
+  previousStroke  Boolean @default(false)
 }
 
 type HealthReport {
-  symptoms   Symptoms
-  lifestyle  Lifestyle
+  symptoms  Symptoms
+  lifestyle Lifestyle
 }
 
 type Symptoms {
-  headache             String?
-  dizzinessVertigo     String?
-  fatigueWeakness      String?
-  visualChanges        String?
-  numbnessTingling     String?
-  speechDifficulties   String?
-  additionalSymptoms   String?
+  headache           String?
+  dizzinessVertigo   String?
+  fatigueWeakness    String?
+  visualChanges      String?
+  numbnessTingling   String?
+  speechDifficulties String?
+  additionalSymptoms String?
 }
 
 type Lifestyle {
-  dietType             String?
-  alcoholConsumption   String?
-  stressLevel          String?
-  weeklyWorkHours      String?
-  dailyScreenTime      String?
-  dailyOutdoorTime     String?
-  additionalInfo       String?
+  dietType           String?
+  alcoholConsumption String?
+  stressLevel        String?
+  weeklyWorkHours    String?
+  dailyScreenTime    String?
+  dailyOutdoorTime   String?
+  additionalInfo     String?
 }
 
 enum AlertType {
