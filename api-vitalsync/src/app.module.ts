@@ -7,7 +7,13 @@ import { APP_PIPE } from '@nestjs/core';
 import { CaregiversModule } from './caregivers/caregivers.module';
 
 @Module({
-  imports: [PrismaModule, UsersModule, AuthModule, MeasurementModule, CaregiversModule],
+  imports: [
+    PrismaModule,
+    UsersModule,
+    AuthModule,
+    MeasurementModule,
+    CaregiversModule,
+  ],
   controllers: [],
   providers: [
     {

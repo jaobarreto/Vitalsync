@@ -1,49 +1,30 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsInt, IsString, Min, Max } from 'class-validator';
+import { IsArray, IsInt, IsString, Max } from 'class-validator';
 
 export class MeasurementDto {
-  @ApiProperty()
-  userId: string;
+  @ApiProperty({
+    type: [Number],
+    description: 'Amostras IR (12-bit values 0-4095)',
+  })
+  @IsArray()
+  @IsInt({ each: true })
+  @Max(4095, { each: true })
+  irSamples: number[];
 
-  @ApiProperty()
-  @IsInt()
-  @Min(30)
-  @Max(220)
-  heartRate: number;
+  @ApiProperty({
+    type: [Number],
+    description: 'Amostras Red (12-bit values 0-4095)',
+  })
+  @IsArray()
+  @IsInt({ each: true })
+  @Max(4095, { each: true })
+  redSamples: number[];
 
-  @ApiProperty()
+  @ApiProperty({ minimum: 50, maximum: 200 })
   @IsInt()
-  @Min(70)
-  @Max(100)
-  bloodOxygenLevel: number;
-
-  @ApiProperty()
-  @IsInt()
-  @Min(1)
-  hrv: number;
+  sampleRate: number;
 
   @ApiProperty({ required: false })
-  @IsOptional()
-  timestamp?: Date;
-
-  @ApiProperty({ enum: ['routine', 'emergency', 'manual'], required: false })
-  @IsOptional()
   @IsString()
-  eventType?: string;
-
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @IsString()
-  notes?: string;
-
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @IsInt()
-  @Min(1)
-  @Max(1440)
-  duration?: number;
-
-  @ApiProperty({ required: false })
-  @IsOptional()
-  dailySummaryId?: string;
+  deviceId?: string;
 }
