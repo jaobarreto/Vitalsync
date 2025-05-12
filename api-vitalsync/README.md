@@ -113,16 +113,45 @@ Acesse a documentação interativa da API em:
 ---
 
 ## 🔌 Arquitetura do Fluxo de Dados
-
 ```mermaid
-graph LR
-    A[MAX30102] -->|HTTP POST| B[API NestJS]
-    B --> C[MongoDB]
-    C --> D[Agrupamento Diário]
-    D --> E[Sistema de Alertas]
-    E --> F[Notificações ao Cuidador]
+graph TD
+    %% Hardware e Coleta de Dados
+    A[MAX30102 - Sensor] -->|Dados via HTTP POST| B[API NestJS]
+    B -->|Autenticação JWT| C[Validação de Dados]
+    C -->|Armazenamento| D[(MongoDB)]
+    
+    %% Processamento de Dados
+    D --> E[Agrupamento Diário]
+    E -->|Médias: Frequência Cardíaca, SpO2| F[Resumo Diário]
+    F -->|Armazena Resumo| D
+    
+    %% Sistema de Alertas
+    E --> G[Verifica Regras de Alerta]
+    G -->|Batimento Irregular| H[Alerta CRÍTICO]
+    G -->|SpO2 < 90%| I[Alerta PRECAUÇÃO]
+    
+    %% Notificações
+    H --> J[Sistema de Notificações]
+    I --> J
+    J -->|Push/Email/SMS| K[Cuidador]
+    
+    %% Componentes Adicionais
+    L[Painel do Usuário] -->|Consulta Dados| B
+    M[Cuidador - App] -->|Visualiza Alertas| J
+    
+    %% Relacionamentos com Banco
+    B -->|Prisma ORM| D
+    L -->|MongoDB Compass| D
+    
+    %% Estilização
+    style A fill:#ff9999,stroke:#333,stroke-width:2px
+    style B fill:#99ccff,stroke:#333
+    style D fill:#99ff99,stroke:#333
+    style H fill:#ff6666,stroke:#333
+    style I fill:#ffcc66,stroke:#333
+    style J fill:#66ccff,stroke:#333
+    style K fill:#ccccff,stroke:#333
 ```
-
 ---
 
 ## 🧪 Testes
