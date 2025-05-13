@@ -7,8 +7,8 @@ API_URL = "http://localhost:3000/measurements/raw"
 def generate_mock_data():
     return {
         "deviceId": "simulator01",
-        "irSamples": [random.randint(20000, 60000) for _ in range(100)],
-        "redSamples": [random.randint(15000, 50000) for _ in range(100)],
+        "irSamples": [random.randint(1000, 4000) for _ in range(100)],
+        "redSamples": [random.randint(1000, 4000) for _ in range(100)],
         "sampleRate": 100
     }
 
