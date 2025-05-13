@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Param, Body } from '@nestjs/common';
+import { Controller, Post, Get, Delete, Param, Body } from '@nestjs/common';
 import { MeasurementService } from './measurement.service';
 import { MeasurementDto } from './dto/measurement.dto';
 import {
@@ -17,6 +17,14 @@ import { UseGuards } from '@nestjs/common';
 @Controller('measurements')
 export class MeasurementController {
   constructor(private readonly measurementService: MeasurementService) {}
+
+  @Get(':userId/history')
+  @ApiOperation({ summary: 'Histórico de medições do usuário' })
+  @ApiParam({ name: 'userId', description: 'ID do usuário' })
+  @ApiResponse({ status: 200, description: 'Histórico retornado com sucesso' })
+  async getHistory(@Param('userId') userId: string) {
+    return this.measurementService.getMeasurementHistory(userId);
+  }
 
   @Post('raw')
   @ApiOperation({ summary: 'Enviar dados brutos do sensor' })
@@ -56,5 +64,14 @@ export class MeasurementController {
   })
   async getLatestMeasurements(@Param('userId') userId: string) {
     return this.measurementService.getLatestResults(userId);
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'Excluir medição por ID' })
+  @ApiParam({ name: 'id', description: 'ID da medição' })
+  @ApiResponse({ status: 200, description: 'Medição excluída com sucesso' })
+  @ApiResponse({ status: 404, description: 'Medição não encontrada' })
+  async deleteMeasurement(@Param('id') id: string) {
+    return this.measurementService.deleteMeasurement(id);
   }
 }

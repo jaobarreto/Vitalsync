@@ -69,6 +69,35 @@ export class MeasurementService {
     });
   }
 
+  async getMeasurementHistory(userId: string) {
+    const history = await this.prisma.measurement.findMany({
+      where: { userId },
+      orderBy: { timestamp: 'desc' },
+    });
+
+    if (!history.length) {
+      throw new NotFoundException('No measurements found for this user');
+    }
+
+    return history;
+  }
+
+  async deleteMeasurement(id: string) {
+    const measurement = await this.prisma.measurement.findUnique({
+      where: { id },
+    });
+
+    if (!measurement) {
+      throw new NotFoundException('Measurement not found');
+    }
+
+    await this.prisma.measurement.delete({
+      where: { id },
+    });
+
+    return { message: 'Measurement deleted successfully' };
+  }
+
   private validateInput(dto: MeasurementDto) {
     if (dto.irSamples.length !== dto.redSamples.length) {
       throw new BadRequestException('IR and Red samples must have same length');
@@ -81,7 +110,7 @@ export class MeasurementService {
   private async createMeasurement(dto: MeasurementDto, processed: any) {
     return this.prisma.measurement.create({
       data: {
-        userId: await this.getUserFromDevice(dto.deviceId),
+        userId: dto.userId,
         rawIR: dto.irSamples,
         rawRed: dto.redSamples,
         sampleRate: dto.sampleRate,
@@ -92,30 +121,51 @@ export class MeasurementService {
     });
   }
 
-  private async getUserFromDevice(deviceId: string): Promise<string> {
-    // Implementar lógica real de mapeamento
-    return 'user-id-placeholder';
-  }
-
   private estimateBloodPressure(
     irSamples: number[],
     sampleRate: number,
   ): number {
-    // Implementar algoritmo real
-    return Math.floor(120 + Math.random() * 10);
+    const heartRate = this.signalProcessor.calculateHeartRate(
+      irSamples,
+      sampleRate,
+    );
+    const hrv = this.signalProcessor.calculateHRV(irSamples);
+
+    // Algoritmo básico: usa HR + HRV como proxy da pressão
+    const baseSystolic = 110 + (heartRate > 100 ? 10 : 0) - hrv * 0.2;
+    return Math.round(baseSystolic + Math.random() * 5); // ruído
   }
 
   private calculateAfibRisk(redSamples: number[]): number {
-    // Implementar cálculo real
-    return this.signalProcessor.calculateIrregularity(redSamples);
+    const irregularity = this.signalProcessor.calculateIrregularity(redSamples);
+    return Math.min(1, irregularity) * 100; // percentual de risco
   }
 
   private calculateRiskProfile(user: any, measurements: any[]) {
-    // Implementar lógica de cálculo de risco real
+    const lastMeasurement = measurements[measurements.length - 1];
+
+    const riskFactors = [];
+
+    if (
+      user?.medicalHistory?.includes('hypertension') ||
+      lastMeasurement.bpSystolic > 130
+    ) {
+      riskFactors.push('hypertension');
+    }
+
+    if (lastMeasurement.atrialFibRisk > 50) {
+      riskFactors.push('irregular_rhythm');
+    }
+
+    const riskScore = Number((riskFactors.length / 3).toFixed(2)); // arbitrário, 3 fatores máx
+
+    const recommendation =
+      riskScore > 0.5 ? 'Consult cardiologist' : 'Maintain monitoring';
+
     return {
-      riskScore: 0.35,
-      factors: ['hypertension', 'irregular_rhythm'],
-      recommendation: 'Consult cardiologist',
+      riskScore,
+      factors: riskFactors,
+      recommendation,
     };
   }
 }

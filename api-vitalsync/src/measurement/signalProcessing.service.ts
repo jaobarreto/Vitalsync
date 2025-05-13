@@ -24,8 +24,10 @@ export class SignalProcessingService {
   }
 
   private applyFilters(ir: number[], red: number[]) {
-    // Implementar filtros reais
-    return { ir, red };
+    // Placeholder de filtro - apenas remove ruídos extremos
+    const filter = (arr: number[]) =>
+      arr.map((val) => Math.max(0, Math.min(1024, val)));
+    return { ir: filter(ir), red: filter(red) };
   }
 
   calculateHeartRate(signal: number[], sampleRate: number): number {
@@ -42,65 +44,96 @@ export class SignalProcessingService {
 
   calculateSpO2(ir: number[], red: number[]): number {
     const ratio = this.calculateRatio(red, ir);
-    return 110 - 25 * ratio;
+    return Math.min(Math.max(110 - 25 * ratio, 70), 100);
   }
 
   calculatePerfusionIndex(red: number[]): number {
     const ac = this.ACComponent(red);
     const dc = this.DCComponent(red);
-    return (ac / dc) * 100;
+    return dc > 0 ? (ac / dc) * 100 : 0;
   }
-  //Apenas placeholder, será necessário incluir para prod: filtros, algoritmos medicos validos, padrões de arritmia e dados reais
+
   calculateIrregularity(signal: number[]): number {
-    // Implementação básica de cálculo de irregularidade
     const intervals = this.getRRIntervals(signal);
     return this.calculateIrregularityIndex(intervals);
   }
 
   private calculateIrregularityIndex(rrIntervals: number[]): number {
     if (rrIntervals.length < 2) return 0;
-
     const mean = rrIntervals.reduce((a, b) => a + b) / rrIntervals.length;
     const variance =
-      rrIntervals.map((x) => Math.pow(x - mean, 2)).reduce((a, b) => a + b) /
+      rrIntervals.map((x) => Math.pow(x - mean, 2)).reduce((a, b) => a + b, 0) /
       rrIntervals.length;
-
-    return Math.sqrt(variance) / mean; // Coeficiente de variação
+    return Math.sqrt(variance) / mean;
   }
 
-  // Métodos auxiliares (implementações simplificadas)
   private detectPeaks(signal: number[]): number[] {
-    // Implementação real de detecção de picos
-    return [];
+    const threshold = this.mean(signal) * 1.2;
+    const peaks: number[] = [];
+    for (let i = 1; i < signal.length - 1; i++) {
+      if (
+        signal[i] > threshold &&
+        signal[i] > signal[i - 1] &&
+        signal[i] > signal[i + 1]
+      ) {
+        peaks.push(i);
+      }
+    }
+    return peaks;
   }
 
   private getRRIntervals(signal: number[]): number[] {
-    // Implementação real de intervalos RR
-    return [];
+    const sampleRate = 100; // Hz - exemplo
+    const peaks = this.detectPeaks(signal);
+    const intervals: number[] = [];
+    for (let i = 1; i < peaks.length; i++) {
+      const deltaSamples = peaks[i] - peaks[i - 1];
+      const intervalMs = (deltaSamples / sampleRate) * 1000;
+      intervals.push(intervalMs);
+    }
+    return intervals;
   }
 
   private rMSSD(rrIntervals: number[]): number {
-    // Cálculo real de RMSSD
-    return 0;
+    if (rrIntervals.length < 2) return 0;
+    const diffs = rrIntervals.slice(1).map((val, i) => val - rrIntervals[i]);
+    const squaredDiffs = diffs.map((d) => d * d);
+    const meanSquared =
+      squaredDiffs.reduce((a, b) => a + b, 0) / squaredDiffs.length;
+    return Math.sqrt(meanSquared);
   }
 
   private calculateRatio(red: number[], ir: number[]): number {
-    // Cálculo real da razão
-    return 0.5;
+    const redAc = this.ACComponent(red);
+    const redDc = this.DCComponent(red);
+    const irAc = this.ACComponent(ir);
+    const irDc = this.DCComponent(ir);
+
+    const ratio = redAc / redDc / (irAc / irDc);
+    return isFinite(ratio) ? ratio : 0.5;
   }
 
   private ACComponent(signal: number[]): number {
-    // Cálculo do componente AC
-    return 0;
+    const mean = this.mean(signal);
+    return Math.sqrt(
+      signal.map((x) => Math.pow(x - mean, 2)).reduce((a, b) => a + b, 0) /
+        signal.length,
+    );
   }
 
   private DCComponent(signal: number[]): number {
-    // Cálculo do componente DC
-    return 0;
+    return this.mean(signal);
   }
 
   private averageInterval(peaks: number[]): number {
-    // Cálculo da média dos intervalos
-    return 0;
+    if (peaks.length < 2) return 0;
+    const intervals = peaks.slice(1).map((val, i) => val - peaks[i]);
+    const meanInterval =
+      intervals.reduce((a, b) => a + b, 0) / intervals.length;
+    return meanInterval;
+  }
+
+  private mean(arr: number[]): number {
+    return arr.reduce((a, b) => a + b, 0) / arr.length;
   }
 }
