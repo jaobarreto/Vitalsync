@@ -6,26 +6,25 @@ import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { type ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 
-const chartData = [
-  { hora: "22:00", hrv: 45 },
-  { hora: "23:00", hrv: 52 },
-  { hora: "00:00", hrv: 68 },
-  { hora: "01:00", hrv: 75 },
-  { hora: "02:00", hrv: 82 },
-  { hora: "03:00", hrv: 85 },
-  { hora: "04:00", hrv: 80 },
-  { hora: "05:00", hrv: 25 }, // Valor baixo para demonstrar o alerta
-  { hora: "06:00", hrv: 50 },
-]
+interface HeartRateVariabilityChartProps {
+  data: Array<{ hora: string; hrv: number }>
+}
 
-const chartConfig = {
-  hrv: {
-    label: "HRV (ms)",
-    color: "hsl(215, 84%, 61%)",
-  },
-} satisfies ChartConfig
+export function HeartRateVariabilityChart({ data }: HeartRateVariabilityChartProps) {
+  // Calcular a média de HRV durante o sono profundo (2h-4h)
+  const sleepHrv = data.slice(3, 6).reduce((sum, item) => sum + item.hrv, 0) / 3
+  // Calcular a média de HRV ao adormecer (22h-23h)
+  const awakeHrv = data.slice(0, 2).reduce((sum, item) => sum + item.hrv, 0) / 2
+  // Calcular o aumento percentual
+  const increase = Math.round(((sleepHrv - awakeHrv) / awakeHrv) * 100)
 
-export function HeartRateVariabilityChart() {
+  const chartConfig = {
+    hrv: {
+      label: "HRV (ms)",
+      color: "hsl(215, 84%, 61%)",
+    },
+  } satisfies ChartConfig
+
   return (
     <Card className="w-full">
       <CardHeader>
@@ -36,7 +35,7 @@ export function HeartRateVariabilityChart() {
         <ChartContainer config={chartConfig} className="h-[300px]">
           <LineChart
             accessibilityLayer
-            data={chartData}
+            data={data}
             margin={{
               left: 12,
               right: 12,
@@ -80,7 +79,7 @@ export function HeartRateVariabilityChart() {
       </CardContent>
       <CardFooter className="flex-col items-start gap-2 text-sm">
         <div className="flex gap-2 font-medium leading-none">
-          Aumento de 80% durante o sono profundo <TrendingUp className="h-4 w-4 text-green-500" />
+          Aumento de {increase}% durante o sono profundo <TrendingUp className="h-4 w-4 text-green-500" />
         </div>
         <div className="mt-2 flex items-center gap-2 text-amber-500 font-medium">
           <AlertTriangle className="h-4 w-4 fill-amber-100" /> Alertas quando HRV &lt; 30

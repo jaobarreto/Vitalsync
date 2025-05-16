@@ -6,26 +6,25 @@ import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { type ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 
-const chartData = [
-  { hora: "22:00", bpm: 78 },
-  { hora: "23:00", bpm: 72 },
-  { hora: "00:00", bpm: 65 },
-  { hora: "01:00", bpm: 58 },
-  { hora: "02:00", bpm: 55 },
-  { hora: "03:00", bpm: 54 },
-  { hora: "04:00", bpm: 56 },
-  { hora: "05:00", bpm: 82 }, // Valor alto para demonstrar o alerta
-  { hora: "06:00", bpm: 68 },
-]
+interface HeartRateChartProps {
+  data: Array<{ hora: string; bpm: number }>
+}
 
-const chartConfig = {
-  bpm: {
-    label: "BPM",
-    color: "hsl(346, 84%, 61%)",
-  },
-} satisfies ChartConfig
+export function HeartRateChart({ data }: HeartRateChartProps) {
+  // Calcular a média de BPM durante o sono profundo (2h-4h)
+  const sleepBpm = data.slice(3, 6).reduce((sum, item) => sum + item.bpm, 0) / 3
+  // Calcular a média de BPM ao adormecer (22h-23h)
+  const awakeBpm = data.slice(0, 2).reduce((sum, item) => sum + item.bpm, 0) / 2
+  // Calcular a redução percentual
+  const reduction = Math.round(((awakeBpm - sleepBpm) / awakeBpm) * 100)
 
-export function HeartRateChart() {
+  const chartConfig = {
+    bpm: {
+      label: "BPM",
+      color: "hsl(346, 84%, 61%)",
+    },
+  } satisfies ChartConfig
+
   return (
     <Card className="w-full">
       <CardHeader>
@@ -36,7 +35,7 @@ export function HeartRateChart() {
         <ChartContainer config={chartConfig} className="h-[300px]">
           <LineChart
             accessibilityLayer
-            data={chartData}
+            data={data}
             margin={{
               left: 12,
               right: 12,
@@ -80,7 +79,7 @@ export function HeartRateChart() {
       </CardContent>
       <CardFooter className="flex-col items-start gap-2 text-sm">
         <div className="flex gap-2 font-medium leading-none">
-          Redução de 30% durante o sono profundo <TrendingDown className="h-4 w-4 text-green-500" />
+          Redução de {reduction}% durante o sono profundo <TrendingDown className="h-4 w-4 text-green-500" />
         </div>
         <div className="mt-2 flex items-center gap-2 text-red-500 font-medium">
           <Heart className="h-4 w-4 fill-red-100" /> Alertas quando BPM &gt; 75

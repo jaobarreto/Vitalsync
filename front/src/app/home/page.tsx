@@ -7,7 +7,7 @@ export default function Home() {
             <Header />
             <div className="flex flex-col text-center items-center mt-10">
                 <main>
-                    <h1 className="text-2xl font-medium mb-5 text-[#E0004E]">Métricas Cardíacas Durante o Sono</h1>
+                    <h1 className="text-2xl font-medium mb-10 text-[#E0004E]">Métricas Cardíacas Durante o Sono</h1>
                     <HeartMetricsDashboard />
                 </main>
             </div>
