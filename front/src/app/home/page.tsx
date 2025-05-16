@@ -1,15 +1,15 @@
 import Header from "@/components/ui/header";
-import { Component } from "@/components/ui/chartLineDots";
+import { HeartMetricsDashboard } from "@/components/ui/heart-metrics-dashboard";
 
 export default function Home() {
     return(
-        <div className="min-h-screen">
+        <div>
             <Header />
-            <div className="flex flex-col text-center justify-center items-center mt-10">
-                <h1 className="text-2xl text-[#E0004E] font-medium">Dashboard</h1>
-                <div className="flex min-h-12 max-w-1/2 flex-col items-center justify-center mt-5">
-                    <Component />
-                </div>
+            <div className="flex flex-col text-center items-center mt-10">
+                <main>
+                    <h1 className="text-2xl font-medium mb-5 text-[#E0004E]">Métricas Cardíacas Durante o Sono</h1>
+                    <HeartMetricsDashboard />
+                </main>
             </div>
         </div>
     );

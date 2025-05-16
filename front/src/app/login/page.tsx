@@ -6,10 +6,12 @@ import LoginImg from "@/app/public/Login-Img.png";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
+import { useRouter } from 'next/navigation';
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 export default function LoginPage() {
+    const router = useRouter();
     const [form, setForm] = useState({
             email: "",
             password: "",
@@ -22,7 +24,8 @@ export default function LoginPage() {
         const handleSubmit = (e: React.FormEvent) => {
             e.preventDefault();
             //fazer a lógica do cadastro conversando com a API
-            console.log(form)
+            router.push("/home");
+            console.log(form);
         };
 
     return(

@@ -9,13 +9,13 @@ import { type ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } f
 const chartData = [
   { hora: "22:00", bpm: 78 },
   { hora: "23:00", bpm: 72 },
-  { hora: "00:00", bpm: 70 },
+  { hora: "00:00", bpm: 65 },
   { hora: "01:00", bpm: 58 },
   { hora: "02:00", bpm: 55 },
-  { hora: "03:00", bpm: 65 },
+  { hora: "03:00", bpm: 54 },
   { hora: "04:00", bpm: 56 },
-  { hora: "05:00", bpm: 82 },
-  { hora: "06:00", bpm: 87 },
+  { hora: "05:00", bpm: 82 }, // Valor alto para demonstrar o alerta
+  { hora: "06:00", bpm: 68 },
 ]
 
 const chartConfig = {
@@ -25,15 +25,15 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
-export function Component() {
+export function HeartRateChart() {
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>Batimentos Cardíacos Durante o Sono</CardTitle>
+        <CardTitle>Batimentos Cardíacos</CardTitle>
         <CardDescription>Média de BPM por hora</CardDescription>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig}>
+        <ChartContainer config={chartConfig} className="h-[300px]">
           <LineChart
             accessibilityLayer
             data={chartData}
@@ -46,7 +46,7 @@ export function Component() {
           >
             <CartesianGrid vertical={false} strokeDasharray="3 3" />
             <XAxis dataKey="hora" tickLine={false} axisLine={false} tickMargin={8} />
-            <YAxis domain={[50, 80]} tickLine={false} axisLine={false} tickMargin={8} />
+            <YAxis domain={[50, 90]} tickLine={false} axisLine={false} tickMargin={8} />
             <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
             <Line
               dataKey="bpm"
@@ -55,6 +55,7 @@ export function Component() {
               strokeWidth={2}
               dot={({ cx, cy, payload }) => {
                 const r = 24
+                // Só mostra o coração se o BPM for maior que 75 (limite de alerta)
                 if (payload.bpm > 75) {
                   return (
                     <Heart
@@ -70,6 +71,7 @@ export function Component() {
                     />
                   )
                 }
+                // Retorna null para não mostrar nada quando estiver abaixo do limite
                 return null
               }}
             />
@@ -80,11 +82,8 @@ export function Component() {
         <div className="flex gap-2 font-medium leading-none">
           Redução de 30% durante o sono profundo <TrendingDown className="h-4 w-4 text-green-500" />
         </div>
-        <div className="leading-none text-muted-foreground">
-          Batimentos mais baixos entre 02:00 e 04:00, indicando fase de sono profundo
-        </div>
         <div className="mt-2 flex items-center gap-2 text-red-500 font-medium">
-          <Heart className="h-4 w-4 fill-red-100" /> Alertas são exibidos quando BPM &gt; 75
+          <Heart className="h-4 w-4 fill-red-100" /> Alertas quando BPM &gt; 75
         </div>
       </CardFooter>
     </Card>

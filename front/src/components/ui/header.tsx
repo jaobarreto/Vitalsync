@@ -21,7 +21,7 @@ export default function Header() {
                 <Link href="#" className="hover:text-[#E0004E]">
                     Sobre o AVC
                 </Link>
-                <Link href="#" className="hover:text-[#E0004E]">
+                <Link href="/home" className="hover:text-[#E0004E]">
                     Home
                 </Link>
             </div>

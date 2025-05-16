@@ -4,8 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
+import { useRouter } from 'next/navigation';
 
 export default function RegisterForm() {
+    const router = useRouter();
     const [form, setForm] = useState({
         name: "",
         email: "",
@@ -20,7 +22,8 @@ export default function RegisterForm() {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         //fazer a lógica do cadastro conversando com a API
-        console.log(form)
+        router.push("/home");
+        console.log(form);
     };
 
     return(
