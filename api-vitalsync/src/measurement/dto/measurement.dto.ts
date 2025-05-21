@@ -1,55 +1,38 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsArray,
-  IsInt,
-  IsString,
-  Max,
-  Min,
-  ArrayMinSize,
-} from 'class-validator';
+import { IsInt, IsNotEmpty, IsOptional } from 'class-validator';
 
-export class MeasurementDto {
+export class CreateMeasurementDto {
   @ApiProperty({
-    type: [Number],
-    description:
-      'Amostras do sinal infravermelho (IR), valores de 12 bits (0–4095)',
-    example: [1234, 1456, 1322, 1400, 1290],
-  })
-  @IsArray()
-  @ArrayMinSize(10)
-  @IsInt({ each: true })
-  @Min(0, { each: true })
-  @Max(4095, { each: true })
-  irSamples: number[];
-
-  @ApiProperty({
-    type: [Number],
-    description:
-      'Amostras do sinal Red (vermelho), valores de 12 bits (0–4095)',
-    example: [1300, 1480, 1330, 1390, 1285],
-  })
-  @IsArray()
-  @ArrayMinSize(10)
-  @IsInt({ each: true })
-  @Min(0, { each: true })
-  @Max(4095, { each: true })
-  redSamples: number[];
-
-  @ApiProperty({
-    description: 'Taxa de amostragem do sensor em Hz (entre 50 e 200)',
-    minimum: 50,
-    maximum: 200,
-    example: 100,
+    description: 'Valor do batimento cardíaco em BPM',
+    example: 75,
+    required: true,
   })
   @IsInt()
-  @Min(50)
-  @Max(200)
-  sampleRate: number;
+  @IsNotEmpty()
+  heartRate: number;
 
   @ApiProperty({
-    description: 'ID do usuário vinculado à medição',
-    example: '64f5e5b0d1b2a8c9e1234567',
+    description: 'ID do usuário (opcional, pode vir do token)',
+    example: '663d9b15d11aac5f406697a5',
+    required: false,
   })
-  @IsString()
+  @IsOptional()
+  userId?: string;
+}
+
+export class MeasurementResponseDto {
+  @ApiProperty({ description: 'ID único da medição' })
+  id: string;
+
+  @ApiProperty({ description: 'Batimento cardíaco em BPM', example: 75 })
+  heartRate: number;
+
+  @ApiProperty({ description: 'Data e hora da medição', type: Date })
+  timestamp: Date;
+
+  @ApiProperty({
+    description: 'ID do usuário associado',
+    example: '663d9b15d11aac5f406697a5',
+  })
   userId: string;
 }

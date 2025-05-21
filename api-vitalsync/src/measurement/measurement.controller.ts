@@ -1,77 +1,88 @@
-import { Controller, Post, Get, Delete, Param, Body } from '@nestjs/common';
-import { MeasurementService } from './measurement.service';
-import { MeasurementDto } from './dto/measurement.dto';
 import {
-  ApiTags,
+  Controller,
+  Post,
+  Body,
+  Get,
+  UseGuards,
+  ParseIntPipe,
+  Query,
+} from '@nestjs/common';
+import { MeasurementService } from './measurement.service';
+import {
+  CreateMeasurementDto,
+  MeasurementResponseDto,
+} from './dto/measurement.dto';
+import {
+  ApiBearerAuth,
+  ApiBody,
   ApiOperation,
   ApiResponse,
-  ApiBearerAuth,
-  ApiParam,
+  ApiTags,
 } from '@nestjs/swagger';
 import { AuthGuard } from '../auth/auth.guard';
-import { UseGuards } from '@nestjs/common';
+import { GetUser } from '../auth/decorators/user.decorator';
 
-@ApiTags('Biometric Measurements')
-@ApiBearerAuth('JWT-auth')
-@UseGuards(AuthGuard)
+@ApiTags('measurements')
 @Controller('measurements')
+@ApiBearerAuth()
 export class MeasurementController {
   constructor(private readonly measurementService: MeasurementService) {}
 
-  @Get(':userId/history')
-  @ApiOperation({ summary: 'Histórico de medições do usuário' })
-  @ApiParam({ name: 'userId', description: 'ID do usuário' })
-  @ApiResponse({ status: 200, description: 'Histórico retornado com sucesso' })
-  async getHistory(@Param('userId') userId: string) {
-    return this.measurementService.getMeasurementHistory(userId);
-  }
-
-  @Post('raw')
-  @ApiOperation({ summary: 'Enviar dados brutos do sensor' })
+  @Post()
+  @UseGuards(AuthGuard)
+  @ApiOperation({ summary: 'Registra nova medição de BPM' })
+  @ApiBody({ type: CreateMeasurementDto })
   @ApiResponse({
     status: 201,
-    description: 'Dados processados e salvos com sucesso',
+    description: 'Medição registrada com sucesso',
+    type: MeasurementResponseDto,
   })
-  @ApiResponse({
-    status: 400,
-    description: 'Dados inválidos ou formato incorreto',
-  })
-  async receiveRawData(@Body() dto: MeasurementDto) {
-    return this.measurementService.processRawData(dto);
+  async create(
+    @Body() createMeasurementDto: CreateMeasurementDto,
+    @GetUser() userId: string,
+  ): Promise<MeasurementResponseDto> {
+    return this.measurementService.createMeasurement(
+      createMeasurementDto,
+      userId,
+    );
   }
 
-  @Get(':userId/risk')
-  @ApiOperation({ summary: 'Calcular risco de AVC do usuário' })
-  @ApiParam({ name: 'userId', description: 'ID do usuário' })
+  @Get()
+  @UseGuards(AuthGuard)
+  @ApiOperation({ summary: 'Lista todas as medições do usuário' })
   @ApiResponse({
     status: 200,
-    description: 'Cálculo de risco retornado',
+    description: 'Lista de medições',
+    type: [MeasurementResponseDto],
   })
-  @ApiResponse({
-    status: 404,
-    description: 'Usuário não encontrado',
-  })
-  async getStrokeRisk(@Param('userId') userId: string) {
-    return this.measurementService.calculateStrokeRisk(userId);
+  async findAll(@GetUser() userId: string): Promise<MeasurementResponseDto[]> {
+    return this.measurementService.getMeasurementsByUser(userId);
   }
 
-  @Get(':userId/latest')
-  @ApiOperation({ summary: 'Obter últimas medições do usuário' })
-  @ApiParam({ name: 'userId', description: 'ID do usuário' })
+  @Get('latest')
+  @UseGuards(AuthGuard)
+  @ApiOperation({ summary: 'Obtém a última medição do usuário' })
   @ApiResponse({
     status: 200,
-    description: 'Lista das últimas medições',
+    description: 'Última medição registrada',
+    type: MeasurementResponseDto,
   })
-  async getLatestMeasurements(@Param('userId') userId: string) {
-    return this.measurementService.getLatestResults(userId);
+  async findLatest(@GetUser() userId: string): Promise<MeasurementResponseDto> {
+    return this.measurementService.getLatestMeasurement(userId);
   }
 
-  @Delete(':id')
-  @ApiOperation({ summary: 'Excluir medição por ID' })
-  @ApiParam({ name: 'id', description: 'ID da medição' })
-  @ApiResponse({ status: 200, description: 'Medição excluída com sucesso' })
-  @ApiResponse({ status: 404, description: 'Medição não encontrada' })
-  async deleteMeasurement(@Param('id') id: string) {
-    return this.measurementService.deleteMeasurement(id);
+  @Get('range')
+  @UseGuards(AuthGuard)
+  @ApiOperation({ summary: 'Obtém medições dentro de um período (horas)' })
+  @ApiResponse({
+    status: 200,
+    description: 'Medições no período especificado',
+    type: [MeasurementResponseDto],
+  })
+  async findByRange(
+    @GetUser() userId: string,
+    @Query('hours', ParseIntPipe) hours: number,
+  ): Promise<MeasurementResponseDto[]> {
+    return this.measurementService.getMeasurementsByUser(userId, hours);
   }
 }

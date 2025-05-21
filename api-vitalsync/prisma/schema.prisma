@@ -8,19 +8,14 @@ datasource db {
 }
 
 model User {
-  id             String          @id @default(auto()) @map("_id") @db.ObjectId
-  name           String
-  email          String          @unique
-  password       String
-  birthDate      DateTime
-  gender         String
-  weight         Float
-  height         Float
-  medicalHistory MedicalHistory?
-  healthReport   HealthReport?
-  caregivers     Caregiver[]
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
+  id           String          @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  email        String          @unique
+  password     String
+  birthDate    DateTime
+  caregivers   Caregiver[]
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
 
   measurements   Measurement[]
   dailySummaries DailySummary[]
@@ -30,29 +25,18 @@ model User {
 }
 
 model Measurement {
-  id     String @id @default(auto()) @map("_id") @db.ObjectId
-  user   User   @relation(fields: [userId], references: [id])
-  userId String @db.ObjectId
-
-  rawIR      Int[]
-  rawRed     Int[]
-  sampleRate Int
-
-  heartRate      Float?
-  heartRateVar   Float?
-  spo2           Float?
-  perfusionIndex Float?
-  bpSystolic     Int?
-  atrialFibRisk  Float?
-
-  measurementType String   @default("continuous")
-  timestamp       DateTime @default(now())
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String   @db.ObjectId
+  
+  heartRate Int
+  timestamp DateTime @default(now())
 
   dailySummary   DailySummary? @relation("DailyMeasurements", fields: [dailySummaryId], references: [id])
   dailySummaryId String?       @db.ObjectId
   alerts         Alert[]       @relation("MeasurementAlerts")
 
-  @@index([userId, timestamp], name: "stroke_risk_index")
+  @@index([userId, timestamp], name: "heart_rate_index")
   @@map("measurements")
 }
 
@@ -72,18 +56,16 @@ model Caregiver {
 }
 
 model DailySummary {
-  id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  user         User     @relation(fields: [userId], references: [id])
-  userId       String   @db.ObjectId
+  id           String       @id @default(auto()) @map("_id") @db.ObjectId
+  user         User         @relation(fields: [userId], references: [id])
+  userId       String       @db.ObjectId
   date         DateTime
   avgHeartRate Float
-  minOxygen    Int
-  maxHRV       Int
-  alertCount   Int      @default(0)
+  alertCount   Int         @default(0)
 
   measurements Measurement[] @relation("DailyMeasurements")
 
-  @@index([userId, date], name: "daily_summary_index")
+  @@unique(fields: [userId, date], name: "userId_date")
   @@map("daily_summaries")
 }
 
