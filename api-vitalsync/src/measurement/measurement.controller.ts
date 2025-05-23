@@ -41,6 +41,7 @@ export class MeasurementController {
     @Body() createMeasurementDto: CreateMeasurementDto,
     //@GetUser() userId: string,
   ): Promise<MeasurementResponseDto> {
+    console.log('Controller recebeu:', createMeasurementDto);
     return this.measurementService.createMeasurement(
       createMeasurementDto,
       createMeasurementDto.userId,

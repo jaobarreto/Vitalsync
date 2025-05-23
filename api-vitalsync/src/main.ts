@@ -7,17 +7,23 @@ import { json } from 'express';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  app.enableCors({
+    origin: '*',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+  });
+
   // Configuração do payload máximo
   app.use(json({ limit: '10mb' }));
 
   // Configuração global de validação
   app.useGlobalPipes(
     new ValidationPipe({
-      transform: true, // Converte automaticamente os tipos
-      whitelist: true, // Remove propriedades não declaradas nos DTOs
-      forbidNonWhitelisted: true, // Rejeita requisições com propriedades não declaradas
+      transform: true,
+      whitelist: true,
+      forbidNonWhitelisted: true,
       transformOptions: {
-        enableImplicitConversion: true, // Tenta converter tipos implicitamente
+        enableImplicitConversion: true,
       },
     }),
   );
@@ -34,7 +40,7 @@ async function bootstrap() {
         bearerFormat: 'JWT',
         description: 'Insira o token JWT',
       },
-      'JWT-auth', // Este nome deve ser usado com @ApiBearerAuth('JWT-auth') nos controllers
+      'JWT-auth',
     )
     .build();
 
@@ -48,5 +54,6 @@ async function bootstrap() {
 
   await app.listen(3000);
   console.log(`Application is running on: ${await app.getUrl()}`);
+  console.log(`Swagger running at: ${await app.getUrl()}/api`);
 }
 bootstrap();
