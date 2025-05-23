@@ -29,7 +29,7 @@ export class MeasurementController {
   constructor(private readonly measurementService: MeasurementService) {}
 
   @Post()
-  @UseGuards(AuthGuard)
+  //@UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Registra nova medição de BPM' })
   @ApiBody({ type: CreateMeasurementDto })
   @ApiResponse({
@@ -39,11 +39,11 @@ export class MeasurementController {
   })
   async create(
     @Body() createMeasurementDto: CreateMeasurementDto,
-    @GetUser() userId: string,
+    //@GetUser() userId: string,
   ): Promise<MeasurementResponseDto> {
     return this.measurementService.createMeasurement(
       createMeasurementDto,
-      userId,
+      createMeasurementDto.userId,
     );
   }
 
