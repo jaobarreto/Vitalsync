@@ -53,7 +53,7 @@ Esta é a documentação da API do **VitalSync**, um sistema inovador que monito
 ### **Instalação**
 ```bash
 # Clonar o repositório
-git clone https://github.com/seu-usuario/Vitalsync.git
+git clone https://github.com/jaobarreto/Vitalsync.git
 cd vitalsync/api-vitalsync
 
 # Instalar dependências
@@ -73,44 +73,123 @@ npm run start:dev
 ### **Configuração do Banco de Dados**
 1. Crie um cluster no MongoDB
 2. Atualize a string de conexão no `.env`
-3. (Opcional) Popule dados iniciais:
-```bash
-npx prisma db seed
-```
 
 ---
 
 ## 📚 Documentação da API
 
-Acesse a documentação interativa da API em:  
-`http://localhost:3000/api` ao rodar localmente
-
 ### **Endpoints Disponíveis**
 
-#### **Autenticação**
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
-| POST | `/auth/signup` | Registrar novo usuário |
-| POST | `/auth/login` | Login de usuário |
+#### 🔐 Autenticação
+| Método | Endpoint | Descrição | Códigos de Status |
+|--------|----------|-----------|-------------------|
+| `POST` | `/auth/login` | Login de usuário | 200, 401, 404 |
+| `POST` | `/auth/signup` | Registrar novo usuário | 201, 400, 409 |
 
-#### **Usuários**
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
-| GET | `/users` | Listar todos os usuários |
-| GET | `/users/:id` | Detalhes de um usuário |
-| PATCH | `/users/:id` | Atualizar usuário |
-| DELETE | `/users/:id` | Excluir usuário |
+#### 👥 Usuários
+| Método | Endpoint | Descrição | Autenticação |
+|--------|----------|-----------|--------------|
+| `GET` | `/users` | Listar todos os usuários | Admin Only |
+| `GET` | `/users/:id` | Detalhes de um usuário | JWT Required |
+| `PATCH` | `/users/:id` | Atualizar usuário | JWT Required |
+| `DELETE` | `/users/:id` | Excluir usuário | Admin Only |
 
-#### **Medições**
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
-| POST | `/measurement` | Criar nova medição |
-| GET | `/measurement` | Listar todas as medições |
-| GET | `/measurement/:id` | Detalhes da medição |
-| DELETE | `/measurement/:id` | Excluir medição |
-| POST | `/measurement/mock` | Gerar dados fictícios |
+#### 💓 Medições
+| Método | Endpoint | Descrição | Parâmetros |
+|--------|----------|-----------|------------|
+| `POST` | `/measurements` | Registrar nova medição | - |
+| `GET` | `/measurements` | Todas medições do usuário | - |
+| `GET` | `/measurements/latest` | Última medição registrada | - |
+| `GET` | `/measurements/range` | Medições em período (horas) | `?hours=N` |
+
+#### 🚨 Alertas
+| Método | Endpoint | Descrição | Body Example |
+|--------|----------|-----------|---------------|
+| `POST` | `/alerts` | Criar novo alerta | `{ type: 'CRITICAL', details: '...' }` |
+| `GET` | `/alerts` | Listar alertas (filtro resolvido) | `?resolved=true` |
+| `PATCH` | `/alerts/:id` | Atualizar status do alerta | `{ resolved: true }` |
+| `DELETE` | `/alerts/:id` | Excluir alerta | - |
+
+#### 📅 Resumos Diários
+| Método | Endpoint | Descrição | Query Params |
+|--------|----------|-----------|--------------|
+| `POST` | `/daily-summaries` | Gerar/atualizar resumo diário | - |
+| `GET` | `/daily-summaries` | Histórico de resumos | `start=DATE&end=DATE` |
+
+#### 👩⚕️ Cuidadores
+| Método | Endpoint | Descrição | Body Schema |
+|--------|----------|-----------|-------------|
+| `POST` | `/caregivers` | Cadastrar novo cuidador | `CreateCaregiverDto` |
+| `GET` | `/caregivers` | Listar cuidadores do usuário | - |
+| `PATCH` | `/caregivers/:id` | Atualizar cuidador | `UpdateCaregiverDto` |
+| `DELETE` | `/caregivers/:id` | Remover cuidador | - |
 
 ---
+
+### 📝 Exemplos Detalhados
+
+#### 🔐 Autenticação
+**Login:**
+```http
+POST /auth/login
+Content-Type: application/json
+
+{
+  "email": "usuario@example.com",
+  "password": "senhaSegura123"
+}
+```
+
+**Resposta Bem-Sucedida:**
+```json
+{
+  "access_token": "jwt.token.here",
+  "userId": "60d5ecb8f8b7a61234f1a3b4"
+}
+```
+
+#### 💓 Medições
+**Obter Última Medição:**
+```http
+GET /measurements/latest
+Authorization: Bearer <jwt_token>
+```
+
+**Resposta:**
+```json
+{
+  "id": "65a1bcb8f8b7a61234f1a3b5",
+  "heartRate": 72,
+  "timestamp": "2024-03-15T14:30:00Z",
+  "userId": "60d5ecb8f8b7a61234f1a3b4"
+}
+```
+
+#### 🚨 Alertas
+**Marcar Alerta como Resolvido:**
+```http
+PATCH /alerts/65a1bcb8f8b7a61234f1a3b5
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+
+{
+  "resolved": true
+}
+```
+
+#### 👩⚕️ Cuidadores
+**Cadastrar Novo Cuidador:**
+```http
+POST /caregivers
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+
+{
+  "name": "Maria Silva",
+  "qualification": "Enfermeira Intensivista",
+  "contact": "maria@cuidadora.com"
+}
+```
 
 ## 🔌 Arquitetura do Fluxo de Dados
 ```mermaid
@@ -152,39 +231,20 @@ graph TD
     style J fill:#66ccff,stroke:#333
     style K fill:#ccccff,stroke:#333
 ```
+
 ---
-
-## 🧪 Testes
-
-### **Testes Unitários**
-```bash
-npm run test
-```
-
-### **Testes de Integração (E2E)**
-```bash
-npm run test:e2e
-```
 
 ### **Geração de Dados Fictícios**
 ```bash
 # Via API
-POST /measurement/mock
+POST /measurements
 
 # Via script Python
 cd scripts
-python mock_measurements.py
+python arduino-pulsensor.py
 ```
 
 ---
-
-## 📈 Deploy
-
-### **Build de Produção**
-```bash
-npm run build
-npm run start:prod
-```
 
 ### **Variáveis de Ambiente**
 | Variável | Obrigatória | Descrição |
@@ -195,18 +255,7 @@ npm run start:prod
 
 ---
 
-## 🤝 Contribuindo
-
-1. Faça um fork do repositório
-2. Crie uma branch de funcionalidade (`git checkout -b feature/nova-funcionalidade`)
-3. Faça commit das alterações (`git commit -m 'Adicionar nova funcionalidade'`)
-4. Faça push da branch (`git push origin feature/nova-funcionalidade`)
-5. Abra um Pull Request
-
----
-
 ## 📜 Licença
 
 Licença MIT - Veja [LICENSE](LICENSE) para mais detalhes.
 
----
