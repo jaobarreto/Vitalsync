@@ -29,7 +29,7 @@ export class MeasurementController {
   constructor(private readonly measurementService: MeasurementService) {}
 
   @Post()
-  @UseGuards(AuthGuard)
+  //@UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Registra nova medição de BPM' })
   @ApiBody({ type: CreateMeasurementDto })
   @ApiResponse({
