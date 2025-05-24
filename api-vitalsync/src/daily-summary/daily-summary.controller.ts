@@ -24,7 +24,7 @@ export class DailySummaryController {
   @ApiOperation({ summary: 'Gerar/atualizar resumo diário' })
   @ApiResponse({ status: 201, type: DailySummaryResponseDto })
   async generateSummary(
-    @GetUser() userId: string,
+    @GetUser('id') userId: string,
   ): Promise<DailySummaryResponseDto> {
     return this.summaryService.generateDailySummary(userId);
   }
@@ -33,7 +33,7 @@ export class DailySummaryController {
   @ApiOperation({ summary: 'Listar resumos diários' })
   @ApiResponse({ status: 200, type: [DailySummaryResponseDto] })
   async getSummaries(
-    @GetUser() userId: string,
+    @GetUser('id') userId: string,
     @Query() query: DailySummaryQueryDto,
   ): Promise<DailySummaryResponseDto[]> {
     return this.summaryService.getSummaries(userId, query);
