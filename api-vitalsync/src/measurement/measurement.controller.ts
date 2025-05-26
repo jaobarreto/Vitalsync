@@ -29,7 +29,7 @@ export class MeasurementController {
   constructor(private readonly measurementService: MeasurementService) {}
 
   @Post()
-  @UseGuards(AuthGuard)
+  //@UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Registra nova medição de BPM' })
   @ApiBody({ type: CreateMeasurementDto })
   @ApiResponse({
@@ -39,8 +39,9 @@ export class MeasurementController {
   })
   async create(
     @Body() createMeasurementDto: CreateMeasurementDto,
-    @GetUser() userId: string,
+    @GetUser('id') userId: string,
   ): Promise<MeasurementResponseDto> {
+    console.log('Controller recebeu:', createMeasurementDto);
     return this.measurementService.createMeasurement(
       createMeasurementDto,
       userId,
@@ -55,7 +56,9 @@ export class MeasurementController {
     description: 'Lista de medições',
     type: [MeasurementResponseDto],
   })
-  async findAll(@GetUser() userId: string): Promise<MeasurementResponseDto[]> {
+  async findAll(
+    @GetUser('id') userId: string,
+  ): Promise<MeasurementResponseDto[]> {
     return this.measurementService.getMeasurementsByUser(userId);
   }
 
@@ -67,7 +70,9 @@ export class MeasurementController {
     description: 'Última medição registrada',
     type: MeasurementResponseDto,
   })
-  async findLatest(@GetUser() userId: string): Promise<MeasurementResponseDto> {
+  async findLatest(
+    @GetUser('id') userId: string,
+  ): Promise<MeasurementResponseDto> {
     return this.measurementService.getLatestMeasurement(userId);
   }
 
@@ -80,7 +85,7 @@ export class MeasurementController {
     type: [MeasurementResponseDto],
   })
   async findByRange(
-    @GetUser() userId: string,
+    @GetUser('id') userId: string,
     @Query('hours', ParseIntPipe) hours: number,
   ): Promise<MeasurementResponseDto[]> {
     return this.measurementService.getMeasurementsByUser(userId, hours);

@@ -20,19 +20,33 @@ export class DailySummaryService {
     const [aggregations, alertsCount] = await Promise.all([
       this.prisma.measurement.aggregate({
         _avg: { heartRate: true },
-        where: { userId, timestamp: { gte: start, lte: end } },
+        where: {
+          userId,
+          timestamp: {
+            gte: start,
+            lte: end,
+          },
+        },
       }),
       this.prisma.alert.count({
         where: {
           userId,
-          createdAt: { gte: start, lte: end },
+          createdAt: {
+            gte: start,
+            lte: end,
+          },
           resolved: false,
         },
       }),
     ]);
 
     const summary = await this.prisma.dailySummary.upsert({
-      where: { userId_date: { userId, date: start } },
+      where: {
+        userId_date: {
+          userId,
+          date: start,
+        },
+      },
       update: {
         avgHeartRate: aggregations._avg.heartRate || 0,
         alertCount: alertsCount,
@@ -41,9 +55,13 @@ export class DailySummaryService {
         date: start,
         avgHeartRate: aggregations._avg.heartRate || 0,
         alertCount: alertsCount,
-        user: { connect: { id: userId } },
+        user: {
+          connect: { id: userId },
+        },
       },
-      include: { measurements: true },
+      include: {
+        measurements: true,
+      },
     });
 
     return this.mapToDto(summary);
@@ -57,8 +75,12 @@ export class DailySummaryService {
 
     if (query.startDate || query.endDate) {
       where.date = {};
-      if (query.startDate) where.date.gte = startOfDay(query.startDate);
-      if (query.endDate) where.date.lte = endOfDay(query.endDate);
+      if (query.startDate) {
+        where.date.gte = startOfDay(query.startDate);
+      }
+      if (query.endDate) {
+        where.date.lte = endOfDay(query.endDate);
+      }
     }
 
     const summaries = await this.prisma.dailySummary.findMany({
@@ -67,7 +89,7 @@ export class DailySummaryService {
       orderBy: { date: 'desc' },
     });
 
-    return summaries.map(this.mapToDto);
+    return summaries.map((summary) => this.mapToDto(summary));
   }
 
   private mapToDto(summary: any): DailySummaryResponseDto {

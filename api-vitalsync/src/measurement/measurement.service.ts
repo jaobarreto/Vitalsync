@@ -16,23 +16,33 @@ export class MeasurementService {
     createMeasurementDto: CreateMeasurementDto,
     userId?: string,
   ) {
-    const measurement = await this.prisma.measurement.create({
-      data: {
-        heartRate: createMeasurementDto.heartRate,
-        user: { connect: { id: userId || createMeasurementDto.userId } },
-      },
-      include: { user: { select: { id: true } } },
-    });
+    console.log('createMeasurementDto:', createMeasurementDto);
+    console.log('userId recebido:', userId);
+    try {
+      const measurement = await this.prisma.measurement.create({
+        data: {
+          heartRate: createMeasurementDto.heartRate,
+          user: { connect: { id: userId || createMeasurementDto.userId } },
+        },
+        include: { user: { select: { id: true } } },
+      });
+      console.log('Medição criada:', measurement);
 
-    await this.alertService.checkForHeartRateAlert(
-      measurement.user.id,
-      measurement.heartRate,
-      measurement.id,
-    );
+      await this.alertService.checkForHeartRateAlert(
+        measurement.user.id,
+        measurement.heartRate,
+        measurement.id,
+      );
+      console.log('Alerta checado.');
 
-    await this.dailySummaryService.generateDailySummary(measurement.user.id);
+      await this.dailySummaryService.generateDailySummary(measurement.user.id);
+      console.log('Resumo diário gerado.');
 
-    return measurement;
+      return measurement;
+    } catch (error) {
+      console.error('Erro ao criar medição:', error);
+      throw error;
+    }
   }
 
   async getMeasurementsByUser(userId: string, hours: number = 24) {
