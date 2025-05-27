@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { Heart, Wifi, WifiOff } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
+import { addWebSocketListener, initWebSocket, removeWebSocketListener } from "@/app/utils/websocket"
 
 interface HeartData {
   bpm: number
@@ -16,25 +17,19 @@ export function LiveHeartMonitor() {
     status: "Normal",
     timestamp: new Date(),
   })
-  const [isConnected, setIsConnected] = useState(true)
+  const [isConnected, setIsConnected] = useState(false)
   const [isAnimating, setIsAnimating] = useState(false)
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      // Simular possível desconexão (5% de chance)
-      if (Math.random() < 0.05) {
-        setIsConnected(false)
-        setTimeout(() => setIsConnected(true), 2000)
-        return
-      }
-
+    initWebSocket()
+    const refreshHeartRate = async (event: MessageEvent) => { 
       setIsConnected(true)
-      setIsAnimating(true)
-
-      const baseBpm = 72
+      const websocketMessage = JSON.parse(event.data);
+      
+      const baseBpm = Number(websocketMessage.heartRate)
       const variation = Math.random() * 20 - 10 // Variação de -10 a +10
       const newBpm = Math.round(Math.max(45, Math.min(120, baseBpm + variation)))
-
+      
       // Determinar status baseado no BPM
       let status: HeartData["status"]
       if (newBpm < 60) {
@@ -46,17 +41,19 @@ export function LiveHeartMonitor() {
       } else {
         status = "Normal"
       }
-
+      
+      setIsAnimating(true)
       setHeartData({
         bpm: newBpm,
         status,
         timestamp: new Date(),
       })
+      setIsAnimating(false)
+    };
 
-      setTimeout(() => setIsAnimating(false), 300)
-    }, 2000) // Atualizar a cada 2 segundos
+    addWebSocketListener(refreshHeartRate);
 
-    return () => clearInterval(interval)
+    return () => removeWebSocketListener(refreshHeartRate);
   }, [])
 
   const getStatusColor = (status: HeartData["status"]) => {
