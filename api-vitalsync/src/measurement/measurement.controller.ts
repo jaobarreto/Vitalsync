@@ -49,7 +49,7 @@ export class MeasurementController {
   }
 
   @Get()
-  @UseGuards(AuthGuard)
+  //@UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Lista todas as medições do usuário' })
   @ApiResponse({
     status: 200,
@@ -63,7 +63,7 @@ export class MeasurementController {
   }
 
   @Get('latest')
-  @UseGuards(AuthGuard)
+  //@UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Obtém a última medição do usuário' })
   @ApiResponse({
     status: 200,
@@ -77,7 +77,7 @@ export class MeasurementController {
   }
 
   @Get('range')
-  @UseGuards(AuthGuard)
+  //@UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Obtém medições dentro de um período (horas)' })
   @ApiResponse({
     status: 200,
