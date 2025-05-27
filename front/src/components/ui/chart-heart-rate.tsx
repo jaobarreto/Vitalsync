@@ -70,8 +70,8 @@ export function HeartRateChart({ data }: HeartRateChartProps) {
                     />
                   )
                 }
-                // Retorna null para não mostrar nada quando estiver abaixo do limite
-                return null
+                // Retorna um grupo SVG vazio quando estiver abaixo do limite
+                return <g key={payload.hora} />
               }}
             />
           </LineChart>

@@ -157,13 +157,16 @@
     /* Cores personalizadas para os gráficos */
     --chart-1: 346, 84%, 61%;
     --chart-2: 215, 84%, 61%;
+    --chart-3: 180, 70%, 45%;
     --color-bpm: hsl(346, 84%, 61%);
     --color-hrv: hsl(215, 84%, 61%);
+    --color-spo2: hsl(180, 70%, 45%);
 
     /* Cor personalizada para o app */
     --brand: #e0004e;
     --brand-light: rgba(224, 0, 78, 0.1);
     --brand-medium: rgba(224, 0, 78, 0.5);
+    --brand-soft: rgba(224, 0, 78, 0.7);
   }
 
   .dark {
@@ -194,6 +197,15 @@
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 342 100% 44%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
   }
 }
 
@@ -238,4 +250,48 @@
 /* Estilos para os títulos */
 .brand-text {
   color: var(--brand);
+}
+
+/* Estilos para o footer com degradê do branco ao vermelho da marca */
+.footer-gradient {
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 1) 0%,
+    rgba(255, 255, 255, 0.5) 5%,
+    rgba(224, 0, 78, 0.05) 10%,
+    rgba(224, 0, 78, 0.15) 15%,
+    rgba(224, 0, 78, 0.25) 30%,
+    rgba(224, 0, 78, 0.4) 45%,
+    rgba(224, 0, 78, 0.55) 60%,
+    rgba(224, 0, 78, 0.65) 75%,
+    rgba(224, 0, 78, 0.7) 90%,
+    rgba(224, 0, 78, 0.8) 100%
+  );
+}
+
+.footer-link {
+  transition: all 0.3s ease-in-out;
+}
+
+.footer-link:hover {
+  color: white;
+  text-decoration: underline;
+  transform: translateY(-1px);
+}
+
+/* Texto do footer com sombra para contrastar em todo o degradê */
+.footer-text-primary {
+  color: #656565;
+}
+
+.footer-text-secondary {
+  color: #656565;
+}
+
+.footer-text-links {
+  color: #656565;
+}
+
+.footer-text-links:hover {
+  color: #111827;
 }

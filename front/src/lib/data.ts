@@ -101,11 +101,55 @@ export function generateHeartRateVariabilityData(date: Date) {
   })
 }
 
+// Gerar dados de oxigenação do sangue para uma data específica
+export function generateBloodOxygenData(date: Date) {
+  const baseData = [
+    { hora: "22:00", spo2: 0 },
+    { hora: "23:00", spo2: 0 },
+    { hora: "00:00", spo2: 0 },
+    { hora: "01:00", spo2: 0 },
+    { hora: "02:00", spo2: 0 },
+    { hora: "03:00", spo2: 0 },
+    { hora: "04:00", spo2: 0 },
+    { hora: "05:00", spo2: 0 },
+    { hora: "06:00", spo2: 0 },
+  ]
+
+  // Preencher com valores baseados na data
+  return baseData.map((item, index) => {
+    // Diferentes sementes para diferentes horas
+    const seed = index + 20 // Usar uma semente diferente das outras funções
+
+    // Gerar SpO2 baseado na hora e data (normalmente entre 95-99%)
+    let spo2
+    if (index < 2) {
+      // Primeiras horas: SpO2 normal (acordado)
+      spo2 = getRandomNumber(96, 99, date, seed)
+    } else if (index >= 2 && index <= 5) {
+      // Meio da noite: SpO2 ligeiramente mais baixo (sono profundo)
+      spo2 = getRandomNumber(95, 98, date, seed)
+    } else {
+      // Manhã: SpO2 voltando ao normal (acordando)
+      spo2 = getRandomNumber(96, 99, date, seed)
+    }
+
+    // Adicionar alguns vales aleatórios para criar alertas
+    // Usar a data como semente para que os vales sejam consistentes para a mesma data
+    const dayOfMonth = date.getDate()
+    if ((dayOfMonth + index) % 11 === 0) {
+      spo2 = getRandomNumber(91, 93, date, seed)
+    }
+
+    return { ...item, spo2 }
+  })
+}
+
 // Função para obter dados para uma data específica
 export function getDataForDate(date: Date) {
   return {
     heartRate: generateHeartRateData(date),
     heartRateVariability: generateHeartRateVariabilityData(date),
+    bloodOxygen: generateBloodOxygenData(date),
   }
 }
 

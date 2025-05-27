@@ -1,35 +1,35 @@
 "use client"
 
-import { AlertTriangle, TrendingUp } from "lucide-react"
+import { AlertCircle, TrendingDown } from "lucide-react"
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts"
 
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { type ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 
-interface HeartRateVariabilityChartProps {
-  data: Array<{ hora: string; hrv: number }>
+interface BloodOxygenChartProps {
+  data: Array<{ hora: string; spo2: number }>
 }
 
-export function HeartRateVariabilityChart({ data }: HeartRateVariabilityChartProps) {
-  // Calcular a média de HRV durante o sono profundo (2h-4h)
-  const sleepHrv = data.slice(3, 6).reduce((sum, item) => sum + item.hrv, 0) / 3
-  // Calcular a média de HRV ao adormecer (22h-23h)
-  const awakeHrv = data.slice(0, 2).reduce((sum, item) => sum + item.hrv, 0) / 2
-  // Calcular o aumento percentual
-  const increase = Math.round(((sleepHrv - awakeHrv) / awakeHrv) * 100)
+export function BloodOxygenChart({ data }: BloodOxygenChartProps) {
+  // Calcular a média de SpO2 durante o sono profundo (2h-4h)
+  const sleepSpo2 = data.slice(3, 6).reduce((sum, item) => sum + item.spo2, 0) / 3
+  // Calcular a média de SpO2 ao adormecer (22h-23h)
+  const awakeSpo2 = data.slice(0, 2).reduce((sum, item) => sum + item.spo2, 0) / 2
+  // Calcular a redução percentual (geralmente pequena para SpO2)
+  const reduction = Math.round(((awakeSpo2 - sleepSpo2) / awakeSpo2) * 100 * 10) / 10
 
   const chartConfig = {
-    hrv: {
-      label: "HRV (ms)",
-      color: "hsl(215, 84%, 61%)",
+    spo2: {
+      label: "SpO2 (%)",
+      color: "hsl(180, 70%, 45%)",
     },
   } satisfies ChartConfig
 
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>Variabilidade Cardíaca</CardTitle>
-        <CardDescription>HRV (ms) por hora</CardDescription>
+        <CardTitle>Oxigenação do Sangue</CardTitle>
+        <CardDescription>Saturação de oxigênio (SpO2) por hora</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig} className="h-[300px]">
@@ -45,26 +45,26 @@ export function HeartRateVariabilityChart({ data }: HeartRateVariabilityChartPro
           >
             <CartesianGrid vertical={false} strokeDasharray="3 3" />
             <XAxis dataKey="hora" tickLine={false} axisLine={false} tickMargin={8} />
-            <YAxis domain={[20, 90]} tickLine={false} axisLine={false} tickMargin={8} />
+            <YAxis domain={[90, 100]} tickLine={false} axisLine={false} tickMargin={8} />
             <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
             <Line
-              dataKey="hrv"
+              dataKey="spo2"
               type="natural"
-              stroke="var(--color-hrv)"
+              stroke="hsl(180, 70%, 45%)"
               strokeWidth={2}
               dot={({ cx, cy, payload }) => {
                 const r = 24
-                // Só mostra o alerta se o HRV for menor que 30 (limite de alerta)
-                if (payload.hrv < 30) {
+                // Só mostra o alerta se o SpO2 for menor que 94% (limite de alerta)
+                if (payload.spo2 < 94) {
                   return (
-                    <AlertTriangle
+                    <AlertCircle
                       key={payload.hora}
                       x={cx - r / 2}
                       y={cy - r / 2}
                       width={r}
                       height={r}
-                      fill="hsl(38, 100%, 95%)"
-                      stroke="hsl(38, 100%, 50%)"
+                      fill="hsl(0, 100%, 95%)"
+                      stroke="hsl(0, 100%, 60%)"
                       strokeWidth={2}
                       className="animate-pulse"
                     />
@@ -79,12 +79,18 @@ export function HeartRateVariabilityChart({ data }: HeartRateVariabilityChartPro
       </CardContent>
       <CardFooter className="flex-col items-start gap-2 text-sm">
         <div className="flex gap-2 font-medium leading-none">
-          Aumento de {increase}% durante o sono profundo <TrendingUp className="h-4 w-4 text-green-500" />
+          {reduction > 0 ? (
+            <>
+              Redução de {reduction}% durante o sono profundo <TrendingDown className="h-4 w-4 text-green-500" />
+            </>
+          ) : (
+            <>Níveis estáveis durante toda a noite</>
+          )}
         </div>
-        <div className="mt-2 flex items-center gap-2 text-amber-500 font-medium">
-          <AlertTriangle className="h-4 w-4 fill-amber-100" /> Alertas quando HRV &lt; 30
+        <div className="mt-2 flex items-center gap-2 text-red-500 font-medium">
+          <AlertCircle className="h-4 w-4 fill-red-100" /> Alertas quando SpO2 &lt; 94%
         </div>
       </CardFooter>
     </Card>
-  )
+  );
 }

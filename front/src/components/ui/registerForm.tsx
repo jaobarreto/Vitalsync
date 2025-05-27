@@ -22,7 +22,7 @@ export default function RegisterForm() {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         //fazer a lógica do cadastro conversando com a API
-        router.push("/home");
+        router.push("/medical-record");
         console.log(form);
     };
 
